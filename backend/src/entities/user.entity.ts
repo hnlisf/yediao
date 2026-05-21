@@ -44,7 +44,7 @@ export class User {
   @Column({ type: 'varchar', name: 'avatar_url', length: 500, nullable: true, comment: '头像URL' })
   avatar: string;
 
-  @Column({ type: 'int', default: 0, comment: '钓龄(年)' })
+  @Column({ type: 'int', name: 'fishing_age', default: 0, comment: '钓龄(年)' })
   fishingAge: number;
 
   @Column({ type: 'simple-array', name: 'frequent_spots', nullable: true, comment: '常驻扎钓点' })
