@@ -17,20 +17,20 @@ export enum PointAction {
   DAILY_CHECKIN = 'daily_checkin',
 }
 
-@Entity('point_records')
+@Entity('points')
 export class PointRecord {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid', comment: '用户ID' })
-  userId: string;
+  @Column({ name: 'user_id', type: 'int', comment: '用户ID' })
+  userId: number;
 
-  @ManyToOne(() => User, user => user.id)
-  @JoinColumn({ name: 'userId' })
+  @ManyToOne(() => User, user => user.pointRecords)
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ type: 'enum', enum: PointAction, comment: '动作类型' })
-  action: PointAction;
+  @Column({ type: 'varchar', length: 50, comment: '来源' })
+  source: string;
 
   @Column({ type: 'int', comment: '积分变化(正/负)' })
   points: number;
@@ -38,9 +38,6 @@ export class PointRecord {
   @Column({ type: 'varchar', length: 200, nullable: true, comment: '描述' })
   description: string;
 
-  @Column({ type: 'uuid', nullable: true, comment: '关联业务ID' })
-  refId: string;
-
-  @CreateDateColumn({ comment: '创建时间' })
+  @CreateDateColumn({ name: 'created_at', comment: '创建时间' })
   createdAt: Date;
 }

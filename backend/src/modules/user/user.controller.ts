@@ -3,13 +3,17 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { UserService } from './user.service';
 import { UpdateProfileDto, UpdatePrivacyDto, PrivacySettingsDto, BindPhoneDto } from './dto/user.dto';
+import { PointsService } from '../points/points.service';
 
 @ApiTags('用户')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly pointsService: PointsService,
+  ) {}
 
   @Get('profile')
   @ApiOperation({ summary: '获取用户资料' })
@@ -32,8 +36,7 @@ export class UserController {
   @Get('points')
   @ApiOperation({ summary: '获取我的积分' })
   async getMyPoints(@Request() req: any) {
-    const user = await this.userService.findById(req.user.id);
-    return { points: user.pointsBalance };
+    return this.pointsService.getBalance(req.user.id);
   }
 
   @Get('points/history')

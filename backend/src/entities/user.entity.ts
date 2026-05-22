@@ -17,25 +17,35 @@ export enum OAuthProvider {
   ALIPAY = 'alipay',
 }
 
-export enum PrivacyLevel {
-  PUBLIC = 'public',       // 公开 - 所有用户可见
-  FRIENDS = 'friends',     // 好友可见
-  PRIVATE = 'private',     // 仅自己可见
+/**
+ * Privacy settings stored in DB as JSONB in privacy_settings column.
+ * Single toggle per field (no granular public/friends/private per field).
+ */
+export interface PrivacySettings {
+  phone_visible?: boolean;
+  location_visible?: boolean;
+  // Individual field visibility flags (mapped from show* boolean columns)
+  show_fishing_age?: boolean;
+  show_frequent_spot?: boolean;
+  show_skilled_fish?: boolean;
+  show_posts?: boolean;
+  show_friends?: boolean;
+  allow_push?: boolean;
 }
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ type: 'varchar', unique: true, length: 20, comment: '手机号' })
   @Index()
   phone: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true, comment: '昵称' })
+  @Column({ type: 'varchar', length: 50, nullable: true, comment: '昵称' })
   nickname: string;
 
-  @Column({ type: 'varchar', name: 'avatar_url', length: 500, nullable: true, comment: '头像URL' })
+  @Column({ type: 'text', name: 'avatar_url', nullable: true, comment: '头像URL' })
   avatar: string;
 
   @Column({ type: 'int', name: 'fishing_age', default: 0, comment: '钓龄(年)' })
@@ -47,28 +57,11 @@ export class User {
   @Column({ type: 'simple-array', name: 'skilled_fish', nullable: true, comment: '擅长鱼种' })
   skilledFish: string[];
 
-  @Column({ default: true, comment: '是否公开钓龄' })
-  showFishingAge: boolean;
+  /** Stored as JSONB in privacy_settings column */
+  @Column({ type: 'jsonb', name: 'privacy_settings', default: '{}' })
+  privacySettings: PrivacySettings;
 
-  @Column({ default: true, comment: '是否公开常驻扎钓点' })
-  showFrequentSpot: boolean;
-
-  @Column({ default: true, comment: '是否公开擅长鱼种' })
-  showSkilledFish: boolean;
-
-  @Column({ default: true, comment: '是否接收推送' })
-  allowPush: boolean;
-
-  @Column({ name: 'show_posts', default: true, comment: '是否公开动态' })
-  showPosts: boolean;
-
-  @Column({ name: 'show_friends', default: true, comment: '是否公开渔友' })
-  showFriends: boolean;
-
-  @Column({ type: 'int', name: 'points_balance', default: 0, comment: '积分余额' })
-  pointsBalance: number;
-
-  @Column({ type: 'enum', enum: OAuthProvider, name: 'oauth_provider', nullable: true, comment: 'OAuth提供商' })
+  @Column({ type: 'varchar', name: 'oauth_provider', length: 20, nullable: true, comment: 'OAuth提供商' })
   oauthProvider: OAuthProvider;
 
   @Column({ type: 'varchar', name: 'oauth_open_id', length: 100, nullable: true, comment: 'OAuth openid' })
@@ -77,23 +70,13 @@ export class User {
   @Column({ type: 'varchar', name: 'oauth_union_id', length: 100, nullable: true, comment: 'OAuth unionid' })
   oauthUnionId: string;
 
-  @Column({
-    type: 'enum',
-    enum: PrivacyLevel,
-    default: PrivacyLevel.PUBLIC,
-    comment: '隐私级别',
-  })
-  privacyLevel: PrivacyLevel;
-
-  @Column({ type: 'varchar', name: 'personal_signature', length: 200, nullable: true, comment: '个性签名' })
-  personalSignature: string;
-
-  @CreateDateColumn({ comment: '创建时间' })
+  @CreateDateColumn({ name: 'created_at', comment: '创建时间' })
   createdAt: Date;
 
-  @UpdateDateColumn({ comment: '更新时间' })
+  @UpdateDateColumn({ name: 'updated_at', comment: '更新时间' })
   updatedAt: Date;
 
+  // ===== Relations (no DB columns, just ORM mappings) =====
   @OneToMany(() => SpotFavorite, favorite => favorite.user)
   spotFavorites: SpotFavorite[];
 
@@ -120,4 +103,49 @@ export class User {
 
   @OneToMany(() => PointRecord, pr => pr.user)
   pointRecords: PointRecord[];
+
+  // ===== Virtual accessors (not persisted — computed from privacySettings) =====
+  // TypeORM reads these from the entity after loading; they are not DB columns.
+  // Used by services to access privacy preferences without manually unpacking JSONB.
+  get showFishingAge(): boolean {
+    return this.privacySettings?.show_fishing_age ?? true;
+  }
+  set showFishingAge(v: boolean) {
+    this.privacySettings = { ...this.privacySettings, show_fishing_age: v };
+  }
+
+  get showFrequentSpot(): boolean {
+    return this.privacySettings?.show_frequent_spot ?? true;
+  }
+  set showFrequentSpot(v: boolean) {
+    this.privacySettings = { ...this.privacySettings, show_frequent_spot: v };
+  }
+
+  get showSkilledFish(): boolean {
+    return this.privacySettings?.show_skilled_fish ?? true;
+  }
+  set showSkilledFish(v: boolean) {
+    this.privacySettings = { ...this.privacySettings, show_skilled_fish: v };
+  }
+
+  get allowPush(): boolean {
+    return this.privacySettings?.allow_push ?? true;
+  }
+  set allowPush(v: boolean) {
+    this.privacySettings = { ...this.privacySettings, allow_push: v };
+  }
+
+  get showPosts(): boolean {
+    return this.privacySettings?.show_posts ?? true;
+  }
+  set showPosts(v: boolean) {
+    this.privacySettings = { ...this.privacySettings, show_posts: v };
+  }
+
+  get showFriends(): boolean {
+    return this.privacySettings?.show_friends ?? true;
+  }
+  set showFriends(v: boolean) {
+    this.privacySettings = { ...this.privacySettings, show_friends: v };
+  }
 }

@@ -2,8 +2,7 @@ import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, OAuthProvider, PrivacyLevel } from '../../entities/user.entity';
-import { PointAction } from '../../entities/point-record.entity';
+import { User } from '../../entities/user.entity';
 import { LoginDto, RegisterDto, SendCodeDto, OAuthLoginDto } from './dto/auth.dto';
 
 @Injectable()
@@ -38,14 +37,14 @@ export class AuthService {
 
     const user = this.userRepository.create({
       phone: dto.phone,
-      privacyLevel: PrivacyLevel.PUBLIC,
-      showFishingAge: true,
-      showFrequentSpot: true,
-      showSkilledFish: true,
-      showPosts: true,
-      showFriends: true,
-      allowPush: true,
-      pointsBalance: 0,
+      privacySettings: {
+        show_fishing_age: true,
+        show_frequent_spot: true,
+        show_skilled_fish: true,
+        show_posts: true,
+        show_friends: true,
+        allow_push: true,
+      },
       skilledFish: [],
     });
     await this.userRepository.save(user);
@@ -72,7 +71,7 @@ export class AuthService {
   }
 
   async validateUser(userId: string) {
-    return this.userRepository.findOne({ where: { id: userId } });
+    return this.userRepository.findOne({ where: { id: +userId } });
   }
 
   /**
@@ -103,14 +102,14 @@ export class AuthService {
         nickname: nickname || `${provider}用户`,
         avatar: avatar,
         phone: `oauth_${openId.substring(0, 20)}`,
-        privacyLevel: PrivacyLevel.PUBLIC,
-        showFishingAge: true,
-        showFrequentSpot: true,
-        showSkilledFish: true,
-        showPosts: true,
-        showFriends: true,
-        allowPush: true,
-        pointsBalance: 0,
+        privacySettings: {
+          show_fishing_age: true,
+          show_frequent_spot: true,
+          show_skilled_fish: true,
+          show_posts: true,
+          show_friends: true,
+          allow_push: true,
+        },
         skilledFish: [],
       });
       await this.userRepository.save(user);

@@ -1,6 +1,5 @@
 import { IsString, IsOptional, IsInt, Min, Max, IsArray, IsBoolean, IsEnum, Matches, IsNotEmpty, Length } from 'class-validator';
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
-import { PrivacyLevel } from '../../../entities/user.entity';
 
 // ============ Profile Completeness ============
 
@@ -16,7 +15,6 @@ export class ProfileCompletenessDto {
     fishingAge: { filled: boolean; points: number; maxPoints: number };
     frequentSpot: { filled: boolean; points: number; maxPoints: number };
     skilledFish: { filled: boolean; points: number; maxPoints: number };
-    personalSignature: { filled: boolean; points: number; maxPoints: number };
   };
 
   @ApiProperty({ description: '建议完善项', example: ['完善昵称', '上传头像'] })
@@ -53,11 +51,6 @@ export class UpdateProfileDto {
   @IsArray()
   @IsOptional()
   skilledFish?: string[];
-
-  @ApiPropertyOptional({ description: '个性签名' })
-  @IsString()
-  @IsOptional()
-  personalSignature?: string;
 }
 
 // ============ Bind Phone (OAuth) ============
@@ -110,11 +103,6 @@ export class UpdatePrivacyDto {
 }
 
 export class PrivacySettingsDto {
-  @ApiPropertyOptional({ description: '隐私级别', enum: PrivacyLevel })
-  @IsEnum(PrivacyLevel)
-  @IsOptional()
-  privacyLevel?: PrivacyLevel;
-
   @ApiPropertyOptional({ description: '是否公开钓龄' })
   @IsBoolean()
   @IsOptional()

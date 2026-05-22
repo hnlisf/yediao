@@ -250,7 +250,7 @@ export class AiService {
       .getCount();
 
     const pointRecords = await this.pointRecordRepository.find({
-      where: { userId, action: PointAction.RECOGNITION_RELEASE },
+      where: { userId: +userId, source: PointAction.RECOGNITION_RELEASE },
     });
     const totalPoints = pointRecords.reduce((sum, r) => sum + r.points, 0);
 
@@ -297,9 +297,8 @@ export class AiService {
     await this.recognitionRepository.save(record);
 
     const pointsEarned = POINT_PER_RELEASE;
-    const pointRecord = this.pointRecordRepository.create({
-      userId,
-      action: PointAction.RECOGNITION_RELEASE,
+    const pointRecord = this.pointRecordRepository.create({        userId: +userId,
+      source: PointAction.RECOGNITION_RELEASE,
       points: pointsEarned,
       description: `放生鱼类：${record.fishName}`,
     });

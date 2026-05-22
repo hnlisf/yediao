@@ -34,13 +34,13 @@ export class AuthService {
   }
 
   async getProfile(userId: string) {
-    const user = await this.userRepo.findOne({ where: { id: userId } });
+    const user = await this.userRepo.findOne({ where: { id: +userId } });
     if (!user) throw new UnauthorizedException('用户不存在');
     return user;
   }
 
   async updateProfile(userId: string, dto: any) {
-    await this.userRepo.update(userId, dto);
+    await this.userRepo.update(+userId, dto);
     return this.getProfile(userId);
   }
 

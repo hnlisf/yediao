@@ -5,7 +5,7 @@ import { PointRecord, PointAction } from '../../entities/point-record.entity';
 import { User } from '../../entities/user.entity';
 import { EarnPointsDto, SpendPointsDto, PointRecordQueryDto } from './dto/points.dto';
 
-// Points configuration
+// Points configuration — maps PointAction -> { earn, spend }
 const POINTS_CONFIG: Record<string, { earn: number; spend: number }> = {
   [PointAction.REGISTER]: { earn: 50, spend: 0 },
   [PointAction.LOGIN]: { earn: 5, spend: 0 },
@@ -34,11 +34,20 @@ export class PointsService {
     private dataSource: DataSource,
   ) {}
 
+  private async computeBalance(userId: number): Promise<number> {
+    const result = await this.pointRecordRepo
+      .createQueryBuilder('pr')
+      .select('COALESCE(SUM(pr.points), 0)', 'balance')
+      .where('pr.userId = :userId', { userId })
+      .getRawOne();
+    return parseInt(result.balance, 10);
+  }
+
   /**
    * Earn points for a user with idempotency support
    */
   async earnPoints(userId: string, dto: EarnPointsDto): Promise<{ balance: number; earned: number }> {
-    const user = await this.userRepo.findOne({ where: { id: userId } });
+    const user = await this.userRepo.findOne({ where: { id: +userId } });
     if (!user) throw new NotFoundException('用户不存在');
 
     const points = dto.points ?? POINTS_CONFIG[dto.action]?.earn ?? 0;
@@ -49,18 +58,17 @@ export class PointsService {
     await queryRunner.startTransaction();
 
     try {
-      await queryRunner.manager.increment(User, { id: userId }, 'pointsBalance', points);
       const record = this.pointRecordRepo.create({
-        userId,
-        action: dto.action as PointAction,
+        userId: +userId,
+        source: dto.action as string,
         points,
         description,
-        refId: dto.refId,
       });
       await queryRunner.manager.save(record);
       await queryRunner.commitTransaction();
 
-      return { balance: user.pointsBalance + points, earned: points };
+      const newBalance = await this.computeBalance(+userId);
+      return { balance: newBalance, earned: points };
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -73,7 +81,7 @@ export class PointsService {
    * Daily check-in with once-per-day guarantee
    */
   async dailyCheckin(userId: string): Promise<{ balance: number; earned: number; consecutiveDays: number; alreadyCheckedIn: boolean }> {
-    const user = await this.userRepo.findOne({ where: { id: userId } });
+    const user = await this.userRepo.findOne({ where: { id: +userId } });
     if (!user) throw new NotFoundException('用户不存在');
 
     const today = new Date();
@@ -84,16 +92,18 @@ export class PointsService {
     // Check if already checked in today (within grace period)
     const existingRecord = await this.pointRecordRepo.findOne({
       where: {
-        userId,
-        action: PointAction.DAILY_CHECKIN,
+        userId: +userId,
+        source: PointAction.DAILY_CHECKIN,
         createdAt: Between(new Date(today.getTime() - CHECKIN_GRACE_MS), new Date(tomorrow.getTime() - 1)),
       },
       order: { createdAt: 'DESC' },
     });
 
+    const currentBalance = await this.computeBalance(+userId);
+
     if (existingRecord) {
       return {
-        balance: user.pointsBalance,
+        balance: currentBalance,
         earned: 0,
         consecutiveDays: 0,
         alreadyCheckedIn: true,
@@ -107,8 +117,8 @@ export class PointsService {
 
     const yesterdayRecord = await this.pointRecordRepo.findOne({
       where: {
-        userId,
-        action: PointAction.DAILY_CHECKIN,
+        userId: +userId,
+        source: PointAction.DAILY_CHECKIN,
         createdAt: Between(new Date(yesterday.getTime() - CHECKIN_GRACE_MS), new Date(yesterday.getTime() + 86400000 - 1)),
       },
     });
@@ -124,17 +134,17 @@ export class PointsService {
     await queryRunner.startTransaction();
 
     try {
-      await queryRunner.manager.increment(User, { id: userId }, 'pointsBalance', points);
       const record = this.pointRecordRepo.create({
-        userId,
-        action: PointAction.DAILY_CHECKIN,
+        userId: +userId,
+        source: PointAction.DAILY_CHECKIN,
         points,
         description: `每日签到奖励 (第${consecutiveDays}天)`,
       });
       await queryRunner.manager.save(record);
       await queryRunner.commitTransaction();
 
-      return { balance: user.pointsBalance + points, earned: points, consecutiveDays, alreadyCheckedIn: false };
+      const newBalance = await this.computeBalance(+userId);
+      return { balance: newBalance, earned: points, consecutiveDays, alreadyCheckedIn: false };
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -154,11 +164,12 @@ export class PointsService {
    * Spend points for a user
    */
   async spendPoints(userId: string, dto: SpendPointsDto): Promise<{ balance: number; spent: number }> {
-    const user = await this.userRepo.findOne({ where: { id: userId } });
+    const user = await this.userRepo.findOne({ where: { id: +userId } });
     if (!user) throw new NotFoundException('用户不存在');
 
     const points = dto.points ?? POINTS_CONFIG[dto.action]?.spend ?? 0;
-    if (user.pointsBalance < points) {
+    const currentBalance = await this.computeBalance(+userId);
+    if (currentBalance < points) {
       throw new BadRequestException('积分余额不足');
     }
 
@@ -169,18 +180,17 @@ export class PointsService {
     await queryRunner.startTransaction();
 
     try {
-      await queryRunner.manager.decrement(User, { id: userId }, 'pointsBalance', points);
       const record = this.pointRecordRepo.create({
-        userId,
-        action: dto.action as PointAction,
+        userId: +userId,
+        source: dto.action as string,
         points: -points,
         description,
-        refId: dto.refId,
       });
       await queryRunner.manager.save(record);
       await queryRunner.commitTransaction();
 
-      return { balance: user.pointsBalance - points, spent: points };
+      const newBalance = await this.computeBalance(+userId);
+      return { balance: newBalance, spent: points };
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -197,7 +207,7 @@ export class PointsService {
     const skip = (page - 1) * limit;
 
     const [records, total] = await this.pointRecordRepo.findAndCount({
-      where: { userId },
+      where: { userId: +userId },
       order: { createdAt: 'DESC' },
       skip,
       take: limit,
@@ -213,12 +223,13 @@ export class PointsService {
   }
 
   /**
-   * Get user's current point balance
+   * Get user's current point balance (computed from points table sum)
    */
   async getBalance(userId: string): Promise<{ balance: number }> {
-    const user = await this.userRepo.findOne({ where: { id: userId } });
+    const user = await this.userRepo.findOne({ where: { id: +userId } });
     if (!user) throw new NotFoundException('用户不存在');
-    return { balance: user.pointsBalance };
+    const balance = await this.computeBalance(+userId);
+    return { balance };
   }
 
   /**

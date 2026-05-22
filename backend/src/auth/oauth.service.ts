@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import axios from 'axios';
-import { User, OAuthProvider, PrivacyLevel } from '../entities/user.entity';
+import { User, OAuthProvider } from '../entities/user.entity';
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -27,10 +27,10 @@ export class OAuthService {
     return `https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=${appId}&redirect_uri=${redirectUri}&scope=auth_userinfo&state=${state}`;
   }
 
-  async handleWechatCallback(code: string): Promise<{ token: string; userId: string }> {
+  async handleWechatCallback(code: string): Promise<{ token: string; userId: number | string }> {
     const appId = process.env.WEIXIN_APP_ID;
     const appSecret = process.env.WEIXIN_APP_SECRET;
-    const tokenUrl = `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appId}&secret=${appSecret}&code=${code}&grant_type=authorization_code`;
+    const tokenUrl = `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appId}&secret=***&code=***&grant_type=authorization_code`;
 
     let openid: string;
     let unionid: string | undefined;
@@ -52,7 +52,7 @@ export class OAuthService {
     return { token, userId: user.id };
   }
 
-  async handleAlipayCallback(code: string): Promise<{ token: string; userId: string }> {
+  async handleAlipayCallback(code: string): Promise<{ token: string; userId: number | string }> {
     // Alipay requires RSA2 signed requests which needs alipay-sdk.
     // MVP: mock openid derived from code. In production, integrate alipay-sdk.
     const openid = `alipay_${code}_mock`;
@@ -86,14 +86,14 @@ export class OAuthService {
         oauthProvider: provider,
         oauthOpenId: openid,
         oauthUnionId: unionid,
-        privacyLevel: PrivacyLevel.PUBLIC,
-        showFishingAge: true,
-        showFrequentSpot: true,
-        showSkilledFish: true,
-        showPosts: true,
-        showFriends: true,
-        allowPush: true,
-        pointsBalance: 0,
+        privacySettings: {
+          show_fishing_age: true,
+          show_frequent_spot: true,
+          show_skilled_fish: true,
+          show_posts: true,
+          show_friends: true,
+          allow_push: true,
+        },
         skilledFish: [],
       });
       await this.userRepo.save(user);
