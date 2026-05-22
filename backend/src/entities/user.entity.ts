@@ -12,12 +12,6 @@ import { FishingDateParticipant } from './fishing-date-participant.entity';
 import { AiRecognition } from './ai-recognition.entity';
 import { PointRecord } from './point-record.entity';
 
-export enum UserStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  BANNED = 'banned',
-}
-
 export enum OAuthProvider {
   WECHAT = 'wechat',
   ALIPAY = 'alipay',
@@ -52,9 +46,6 @@ export class User {
 
   @Column({ type: 'simple-array', name: 'skilled_fish', nullable: true, comment: '擅长鱼种' })
   skilledFish: string[];
-
-  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE, comment: '状态' })
-  status: UserStatus;
 
   @Column({ default: true, comment: '是否公开钓龄' })
   showFishingAge: boolean;

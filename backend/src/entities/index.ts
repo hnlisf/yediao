@@ -1,4 +1,4 @@
-export { User, UserStatus, OAuthProvider, PrivacyLevel } from './user.entity';
+export { User, OAuthProvider, PrivacyLevel } from './user.entity';
 export { Spot, SpotType } from './spot.entity';
 export { SpotFavorite } from './spot-favorite.entity';
 export { SpotComment } from './spot-comment.entity';

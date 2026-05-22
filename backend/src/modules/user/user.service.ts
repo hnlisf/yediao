@@ -46,7 +46,7 @@ export class UserService {
   }
 
   private sanitizeUser(user: User) {
-    const { status, ...rest } = user;
+    const { ...rest } = user;
     return rest;
   }
 
