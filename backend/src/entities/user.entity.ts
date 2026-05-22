@@ -47,7 +47,7 @@ export class User {
   @Column({ type: 'int', name: 'fishing_age', default: 0, comment: '钓龄(年)' })
   fishingAge: number;
 
-  @Column({ type: 'simple-array', name: 'frequent_spots', nullable: true, comment: '常驻扎钓点' })
+  @Column({ type: 'simple-array', name: 'frequent_spot', nullable: true, comment: '常驻扎钓点' })
   frequentSpot: string[];
 
   @Column({ type: 'simple-array', name: 'skilled_fish', nullable: true, comment: '擅长鱼种' })
