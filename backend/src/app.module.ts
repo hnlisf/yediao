@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { OAuthModule } from './auth/oauth.module';
 import { UsersModule } from './users/users.module';
 import { SpotsModule } from './spots/spots.module';
+import { FishSpeciesModule } from './modules/fish-species/fish-species.module';
 import { FishModule } from './fish/fish.module';
 import { SocialModule } from './social/social.module';
 import { ChatModule } from './chat/chat.module';
@@ -42,6 +43,7 @@ import { PointsModule } from './modules/points/points.module';
     OAuthModule,
     UsersModule,
     SpotsModule,
+    FishSpeciesModule,
     FishModule,
     SocialModule,
     ChatModule,
