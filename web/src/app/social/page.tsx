@@ -51,7 +51,7 @@ export default function Social() {
   const fetchPosts = async () => {
     try {
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await axios.get(`${API}/api/community/posts?sort=${sortBy}&page=1&limit=50`, { headers });
+      const res = await axios.get(`${API}/api/v1/community/posts?sort=${sortBy}&page=1&limit=50`, { headers });
       setPosts(res.data.items || res.data || []);
     } catch (e) {
       console.error(e);
@@ -61,7 +61,7 @@ export default function Social() {
   const fetchComments = async (postId: string) => {
     try {
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await axios.get(`${API}/api/community/posts/${postId}/comments`, { headers });
+      const res = await axios.get(`${API}/api/v1/community/posts/${postId}/comments`, { headers });
       setComments(prev => ({ ...prev, [postId]: res.data.items || res.data || [] }));
     } catch (e) {
       console.error(e);
@@ -84,7 +84,7 @@ export default function Social() {
       formData.append('taggedSpecies', taggedSpecies);
       formData.append('taggedSpots', taggedSpots);
       selectedImages.forEach((img) => formData.append('images', img));
-      await axios.post(`${API}/api/community/posts`, formData, {
+      await axios.post(`${API}/api/v1/community/posts`, formData, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
       });
       setNewPost('');
@@ -112,9 +112,9 @@ export default function Social() {
     setPosts(prev => prev.map(p => p.id === postId ? { ...p, likes_count: p.likes_count + (isLiked ? -1 : 1) } : p));
     try {
       if (isLiked) {
-        await axios.delete(`${API}/api/community/posts/${postId}/like`, { headers: { Authorization: `Bearer ${token}` } });
+        await axios.delete(`${API}/api/v1/community/posts/${postId}/like`, { headers: { Authorization: `Bearer ${token}` } });
       } else {
-        await axios.post(`${API}/api/community/posts/${postId}/like`, {}, { headers: { Authorization: `Bearer ${token}` } });
+        await axios.post(`${API}/api/v1/community/posts/${postId}/like`, {}, { headers: { Authorization: `Bearer ${token}` } });
       }
     } catch (e) {
       setLikedPosts(prev => ({ ...prev, [postId]: isLiked }));
@@ -125,7 +125,7 @@ export default function Social() {
   const handleShare = async (postId: string) => {
     if (!token) return;
     try {
-      await axios.post(`${API}/api/community/posts/${postId}/share`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`${API}/api/v1/community/posts/${postId}/share`, {}, { headers: { Authorization: `Bearer ${token}` } });
       alert('分享成功');
     } catch (e) {
       console.error(e);
@@ -143,7 +143,7 @@ export default function Social() {
   const submitComment = async (postId: string) => {
     if (!token || !newComments[postId]?.trim()) return;
     try {
-      const res = await axios.post(`${API}/api/community/posts/${postId}/comments`, 
+      const res = await axios.post(`${API}/api/v1/community/posts/${postId}/comments`, 
         { content: newComments[postId] },
         { headers: { Authorization: `Bearer ${token}` } }
       );

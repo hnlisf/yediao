@@ -54,7 +54,7 @@ export default function SpotDetailPage() {
     try {
       const token = localStorage.getItem('token') || '';
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await axios.get(`${API}/api/spots/${id}`, { headers });
+      const res = await axios.get(`${API}/api/v1/spots/${id}`, { headers });
       const data = res.data;
       setSpot(data);
       setIsFavorited(data.is_favorited || false);
@@ -68,7 +68,7 @@ export default function SpotDetailPage() {
 
   const fetchComments = async () => {
     try {
-      const res = await axios.get(`${API}/api/spots/${id}/comments`);
+      const res = await axios.get(`${API}/api/v1/spots/${id}/comments`);
       setComments(res.data.items || res.data || []);
     } catch (e) {
       console.error(e);
@@ -85,7 +85,7 @@ export default function SpotDetailPage() {
     setIsFavorited(!wasFavorited);
     setFavoriteCount(prev => prev + (wasFavorited ? -1 : 1));
     try {
-      await axios.post(`${API}/api/spots/${id}/favorite`, {}, {
+      await axios.post(`${API}/api/v1/spots/${id}/favorite`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
     } catch (e) {
@@ -103,7 +103,7 @@ export default function SpotDetailPage() {
     }
     if (!newComment.trim()) return;
     try {
-      const res = await axios.post(`${API}/api/spots/${id}/comments`, { content: newComment }, {
+      const res = await axios.post(`${API}/api/v1/spots/${id}/comments`, { content: newComment }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setComments(prev => [...prev, res.data]);
@@ -116,7 +116,7 @@ export default function SpotDetailPage() {
 
   const getImageUrl = (url: string) => {
     if (!url) return '';
-    if (url.startsWith('/uploads/')) return `http://localhost:3000${url}`;
+    if (url.startsWith('/uploads/')) return `http://14.103.72.155:3000${url}`;
     return url;
   };
 

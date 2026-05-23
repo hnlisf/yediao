@@ -21,9 +21,9 @@ export default function SpotsPage() {
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      let url = `${API}/api/spots?page=1&limit=50`;
+      let url = `${API}/api/v1/spots?page=1&limit=50`;
       if (sortBy === 'nearby' && userLocation) {
-        url = `${API}/api/spots/nearby?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=5000&page=1&limit=50`;
+        url = `${API}/api/v1/spots/nearby?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=5000&page=1&limit=50`;
       }
       const res = await axios.get(url, { headers });
       setSpots(res.data.items || res.data || []);

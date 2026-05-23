@@ -40,7 +40,7 @@ export default function Profile() {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        const res = await axios.get(`${API}/api/auth/profile`, {
+        const res = await axios.get(`${API}/api/v1/users/profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = res.data;
@@ -61,7 +61,7 @@ export default function Profile() {
     const token = localStorage.getItem('token');
     if (!token) return;
     try {
-      await axios.patch(`${API}/api/auth/profile`, { [key]: value }, {
+      await axios.patch(`${API}/api/v1/users/profile`, { [key]: value }, {
         headers: { Authorization: `Bearer ${token}` }
       });
     } catch (e) {

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
@@ -22,6 +23,7 @@ import { UploadModule } from './modules/upload/upload.module';
 import { PushModule } from './modules/push/push.module';
 import { AiModule } from './modules/ai/ai.module';
 import { PointsModule } from './modules/points/points.module';
+import { GlobalJwtAuthGuard } from './auth/guards/global-jwt-auth.guard';
 
 @Module({
   imports: [
@@ -61,6 +63,12 @@ import { PointsModule } from './modules/points/points.module';
     PushModule,
     AiModule,
     PointsModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: GlobalJwtAuthGuard,
+    },
   ],
 })
 export class AppModule {}

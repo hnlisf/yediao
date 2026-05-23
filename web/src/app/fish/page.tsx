@@ -32,7 +32,7 @@ export default function FishPage() {
     try {
       const token = localStorage.getItem('token') || '';
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const url = q ? `${API}/api/fish-species/search?q=${encodeURIComponent(q)}` : `${API}/api/fish-species`;
+      const url = q ? `${API}/api/v1/fish-species/search?q=${encodeURIComponent(q)}` : `${API}/api/v1/fish-species`;
       const res = await axios.get(url, { headers });
       setFishList(res.data.items || res.data || []);
     } catch (e) {
@@ -50,7 +50,7 @@ export default function FishPage() {
 
   const getImageUrl = (url: string) => {
     if (!url) return '';
-    if (url.startsWith('/uploads/')) return `http://localhost:3000${url}`;
+    if (url.startsWith('/uploads/')) return `http://14.103.72.155:3000${url}`;
     return url;
   };
 

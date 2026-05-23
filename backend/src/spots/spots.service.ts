@@ -11,13 +11,12 @@ export class SpotsService {
   ) {}
 
   async findAll(lat?: number, lng?: number, radius?: number) {
-    const spots = await this.spotRepo.find({ relations: ['creator'] });
-    // Ensure photos is always an array (TypeORM returns pg array as-is)
+    const spots = await this.spotRepo.find();
     return spots.map((s) => ({ ...s, photos: s.photos || [] }));
   }
 
   async findOne(id: number) {
-    const spot = await this.spotRepo.findOne({ where: { id }, relations: ['creator'] });
+    const spot = await this.spotRepo.findOne({ where: { id } });
     if (!spot) throw new NotFoundException('钓位不存在');
     return spot;
   }

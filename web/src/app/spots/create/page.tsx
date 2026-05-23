@@ -72,7 +72,7 @@ export default function CreateSpotPage() {
       formData.append('fishing_methods', form.fishing_methods);
       formData.append('status', 'pending');
       photos.forEach(p => formData.append('photos', p));
-      await axios.post(`${API}/api/spots`, formData, {
+      await axios.post(`${API}/api/v1/spots`, formData, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
       });
       alert('钓点发布成功，等待审核');

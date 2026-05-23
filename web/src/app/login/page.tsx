@@ -14,7 +14,7 @@ export default function Login() {
 
   const sendCode = async () => {
     try {
-      await axios.post(`${API}/api/auth/send-code`, { phone });
+      await axios.post(`${API}/api/v1/auth/send-code`, { phone });
       setStep(2);
       alert('验证码已发送: 123456 (MVP测试)');
     } catch (e) {
@@ -24,7 +24,7 @@ export default function Login() {
 
   const login = async () => {
     try {
-      const res = await axios.post(`${API}/api/auth/login`, { phone, code });
+      const res = await axios.post(`${API}/api/v1/auth/login`, { phone, code });
       localStorage.setItem('token', res.data.token);
       router.push('/');
     } catch (e) {

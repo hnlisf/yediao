@@ -18,7 +18,7 @@ export default function PrivacyPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token') || '';
-      await axios.patch(`${API}/api/users/privacy`, { privacy }, {
+      await axios.patch(`${API}/api/v1/users/privacy`, { privacy }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('隐私设置已保存');

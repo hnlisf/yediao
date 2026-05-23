@@ -2,18 +2,21 @@ import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards, Request }
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SpotsService } from './spots.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Public } from '../common/decorators/public.decorator';
 
 @ApiTags('钓位')
 @Controller('spots')
 export class SpotsController {
   constructor(private readonly spotsService: SpotsService) {}
 
+  @Public()
   @Get()
   @ApiOperation({ summary: '钓位列表' })
   async findAll(@Query('lat') lat?: number, @Query('lng') lng?: number, @Query('radius') radius?: number) {
     return this.spotsService.findAll(lat, lng, radius);
   }
 
+  @Public()
   @Get(':id')
   @ApiOperation({ summary: '钓位详情' })
   async findOne(@Param('id') id: number) {

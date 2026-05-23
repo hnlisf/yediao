@@ -50,7 +50,7 @@ export default function GatheringsPage() {
       const token = localStorage.getItem('token') || '';
       const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
       const params = activeTab !== 'all' ? `?status=${activeTab}` : '';
-      const res = await fetch(`${API}/api/fishing-dates${params}`, { headers });
+      const res = await fetch(`${API}/api/v1/fishing-dates${params}`, { headers });
       const data = await res.json();
       setGatherings(data.items || data.data?.items || []);
     } catch (e) {
@@ -84,7 +84,7 @@ export default function GatheringsPage() {
     const token = localStorage.getItem('token');
     if (!token) return;
     try {
-      await fetch(`${API}/api/fishing-dates/${id}/join`, {
+      await fetch(`${API}/api/v1/fishing-dates/${id}/join`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -104,7 +104,7 @@ export default function GatheringsPage() {
     }
     try {
       const token = localStorage.getItem('token') || '';
-      await fetch(`${API}/api/fishing-dates`, {
+      await fetch(`${API}/api/v1/fishing-dates`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(createForm)

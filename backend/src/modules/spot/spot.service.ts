@@ -26,6 +26,22 @@ export class SpotService {
     private dataSource: DataSource,
   ) {}
 
+  // ---- 通用列表查询 ----
+  async findAll(page = 1, limit = 20) {
+    const offset = (page - 1) * limit;
+    const [spots, total] = await Promise.all([
+      this.spotRepository
+        .createQueryBuilder('spot')
+        .leftJoinAndSelect('spot.creator', 'creator')
+        .orderBy('spot.createdAt', 'DESC')
+        .skip(offset)
+        .take(limit)
+        .getMany(),
+      this.spotRepository.count(),
+    ]);
+    return { spots, total, page, limit };
+  }
+
   // ---- LBS附近查询 ----
   async findNearby(lat: number, lng: number, radiusMeters: number = 5000, page = 1, limit = 20) {
     const offset = (page - 1) * limit;

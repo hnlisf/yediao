@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Body, Query, Param, UseGuards, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { Public } from '../../common/decorators/public.decorator';
 import { SpotService } from './spot.service';
 import {
   CreateSpotDto, NearbyQueryDto, CommentDto, SpotFilterDto,
@@ -14,12 +15,24 @@ export class SpotController {
 
   // ---- 公开接口 ----
 
+  @Public()
+  @Get()
+  @ApiOperation({ summary: '钓点列表' })
+  async list(@Query('page') page: string, @Query('limit') limit: string) {
+    return this.spotService.findAll(
+      parseInt(page || '1', 10),
+      parseInt(limit || '20', 10),
+    );
+  }
+
+  @Public()
   @Get('nearby')
   @ApiOperation({ summary: '附近钓点(LBS)' })
   async nearby(@Query() query: NearbyQueryDto) {
     return this.spotService.findNearby(query.lat, query.lng, query.radius, query.page, query.limit);
   }
 
+  @Public()
   @Get('filter')
   @ApiOperation({ summary: '筛选钓点（按地区/类型/设施等）' })
   async filter(
@@ -34,6 +47,7 @@ export class SpotController {
     );
   }
 
+  @Public()
   @Get('search')
   @ApiOperation({ summary: '搜索钓点' })
   async search(
@@ -48,6 +62,7 @@ export class SpotController {
     );
   }
 
+  @Public()
   @Get(':id')
   @ApiOperation({ summary: '钓点详情' })
   async detail(@Param('id') id: string, @Request() req) {

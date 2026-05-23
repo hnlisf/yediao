@@ -39,7 +39,7 @@ export default function GatheringDetail() {
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await axios.get(`${API}/api/v1/gatherings/${gatheringId}`, { headers });
+      const res = await axios.get(`${API}/api/v1/fishing-dates/${gatheringId}`, { headers });
       setGathering(res.data.data || res.data);
     } catch (e) {
       console.error(e);
@@ -52,7 +52,7 @@ export default function GatheringDetail() {
     const token = localStorage.getItem('token');
     if (!token) { alert('请先登录'); return; }
     try {
-      await axios.post(`${API}/api/v1/gatherings/${gatheringId}/join`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`${API}/api/v1/fishing-dates/${gatheringId}/join`, {}, { headers: { Authorization: `Bearer ${token}` } });
       setJoined(true);
       fetchGathering();
       alert('报名成功');
@@ -65,7 +65,7 @@ export default function GatheringDetail() {
     const token = localStorage.getItem('token');
     if (!token) return;
     try {
-      await axios.post(`${API}/api/v1/gatherings/${gatheringId}/leave`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`${API}/api/v1/fishing-dates/${gatheringId}/leave`, {}, { headers: { Authorization: `Bearer ${token}` } });
       setJoined(false);
       fetchGathering();
     } catch (e) {

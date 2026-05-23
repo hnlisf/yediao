@@ -43,7 +43,7 @@ export default function ChatPage() {
 
   const fetchConversations = async () => {
     try {
-      const res = await axios.get(`${API}/api/im/conversations`, {
+      const res = await axios.get(`${API}/api/v1/im/conversations`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setConversations(res.data.items || res.data || []);
@@ -56,7 +56,7 @@ export default function ChatPage() {
 
   const fetchMessages = async (chat: Conversation) => {
     try {
-      const res = await axios.get(`${API}/api/im/conversations/${chat.id}/messages`, {
+      const res = await axios.get(`${API}/api/v1/im/conversations/${chat.id}/messages`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMessages(res.data.items || res.data || []);
@@ -73,7 +73,7 @@ export default function ChatPage() {
   const handleSend = async () => {
     if (!newMessage.trim() || !currentChat) return;
     try {
-      const res = await axios.post(`${API}/api/im/messages`, {
+      const res = await axios.post(`${API}/api/v1/im/messages`, {
         to_id: currentChat.user.id,
         content: newMessage
       }, {
@@ -98,7 +98,7 @@ export default function ChatPage() {
 
   const getImageUrl = (url: string) => {
     if (!url) return '';
-    if (url.startsWith('/uploads/')) return `http://localhost:3000${url}`;
+    if (url.startsWith('/uploads/')) return `http://14.103.72.155:3000${url}`;
     return url;
   };
 

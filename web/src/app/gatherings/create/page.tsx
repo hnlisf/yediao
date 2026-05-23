@@ -35,7 +35,7 @@ export default function CreateGatheringPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token') || '';
-      await axios.post(`${API}/api/fishing-dates`, form, {
+      await axios.post(`${API}/api/v1/fishing-dates`, form, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('发起成功');

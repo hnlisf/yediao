@@ -31,7 +31,7 @@ export default function FishHistory() {
   const fetchHistory = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${API}/api/ai/history?page=${page}&limit=20`, {
+      const res = await axios.get(`${API}/api/v1/ai/history?page=${page}&limit=20`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const items = res.data.items || res.data || [];
