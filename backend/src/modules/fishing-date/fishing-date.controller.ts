@@ -2,6 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Query, Param, UseGuards, Requ
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { FishingDateService } from './fishing-date.service';
+import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('约钓')
 @Controller('fishing-dates')
@@ -17,6 +18,7 @@ export class FishingDateController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: '约钓列表' })
   async findAll(
     @Query('page') page: string,

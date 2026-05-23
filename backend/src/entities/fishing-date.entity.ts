@@ -17,11 +17,11 @@ export class FishingDate {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid', comment: '创建者ID' })
+  @Column({ type: 'uuid', name: 'creator_id', comment: '创建者ID' })
   creatorId: string;
 
   @ManyToOne(() => User, user => user.createdFishingDates)
-  @JoinColumn({ name: 'creatorId' })
+  @JoinColumn({ name: 'creator_id' })
   creator: User;
 
   @Column({ type: 'varchar', length: 200, comment: '标题' })

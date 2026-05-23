@@ -48,7 +48,7 @@ export class FishingDateService {
   }
 
   async findAll(page = 1, limit = 20, status?: string) {
-    const where: any = { isPublic: true };
+    const where: any = {};
     if (status) where.status = status;
     const [items, total] = await this.dateRepository.findAndCount({
       where,

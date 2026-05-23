@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { AuthModule } from './auth/auth.module';
 import { OAuthModule } from './auth/oauth.module';
 import { UsersModule } from './users/users.module';
@@ -38,6 +39,7 @@ import { PointsModule } from './modules/points/points.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
       logging: process.env.NODE_ENV === 'development',
+      namingStrategy: new SnakeNamingStrategy(),
     }),
     AuthModule,
     OAuthModule,

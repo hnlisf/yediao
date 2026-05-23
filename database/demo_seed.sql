@@ -431,3 +431,27 @@ UNION ALL SELECT '动态点赞', COUNT(*) FROM post_likes
 UNION ALL SELECT '钓点收藏', COUNT(*) FROM spot_favorites
 UNION ALL SELECT '钓点评论', COUNT(*) FROM spot_reviews
 UNION ALL SELECT 'AI识鱼', COUNT(*) FROM fish_recognitions;
+
+-- ============================================================
+-- 约钓活动数据（新增）
+-- ============================================================
+INSERT INTO fishing_dates (id, creator_id, title, description, spot_id, location_name, longitude, latitude, start_time, end_time, max_participants, current_participants, status)
+VALUES
+  (gen_random_uuid(), 1, '周末千岛湖野钓', '周末去千岛湖钓大板鲫，有兴趣的钓友一起来！装备自带，AA制。', 
+   NULL, '千岛湖中心湖区', 119.0077, 29.6052,
+   '2026-05-31 06:00:00', '2026-05-31 14:00:00', 4, 2, 'open'),
+  (gen_random_uuid(), 2, '钱塘江夜钓翘嘴', '夜钓翘嘴，感受大自然的静谧与惊喜！',
+   NULL, '钱塘江杭州段', 120.152, 30.265,
+   '2026-06-01 20:00:00', '2026-06-02 02:00:00', 3, 1, 'open'),
+  (gen_random_uuid(), 3, '新安江水库探钓', '新安江水库首次探钓，招募2-3名有经验的钓友同行。',
+   NULL, '新安江水库', 118.875, 29.485,
+   '2026-06-07 05:30:00', '2026-06-07 15:00:00', 3, 1, 'open'),
+  (gen_random_uuid(), 1, '天目溪路亚挑战', '路亚爱好者聚会，目标黑鱼和鳜鱼！',
+   NULL, '天目溪上游', 119.453, 30.347,
+   '2026-06-14 07:00:00', '2026-06-14 17:00:00', 5, 2, 'open'),
+  (gen_random_uuid(), 4, '西湖晨练钓', '每天早上西湖苏堤晨练钓鱼，欢迎加入！',
+   NULL, '西湖苏堤', 120.135, 30.242,
+   '2026-06-03 06:00:00', '2026-06-03 09:00:00', 6, 3, 'open'),
+  (gen_random_uuid(), 5, '周末约钓不限鱼种', '不限鱼种，享受野钓乐趣，新手友好！',
+   NULL, '钱塘江杭州段', 120.152, 30.265,
+   '2026-06-21 07:00:00', '2026-06-21 15:00:00', 4, 1, 'open');
