@@ -2,27 +2,15 @@ import { Controller, Get, Post, Delete, Body, Query, Param, UseGuards, Request }
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { CommunityService } from './community.service';
+import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('社区')
 @Controller('community')
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
-  @Post('posts')
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: '发布动态' })
-  async createPost(@Request() req, @Body() dto: {
-    content: string;
-    images?: string[];
-    taggedSpecies?: string[];
-    taggedSpots?: string[];
-    videoUrl?: string;
-    contentType?: string;
-  }) {
-    return this.communityService.createPost(req.user.id, dto);
-  }
-
+  // ---- 公开读接口 ----
+  @Public()
   @Get('posts')
   @ApiOperation({ summary: '动态列表' })
   async getPosts(
@@ -37,6 +25,7 @@ export class CommunityController {
     );
   }
 
+  @Public()
   @Get('posts/user/:userId')
   @ApiOperation({ summary: '用户动态列表' })
   async getUserPosts(
@@ -51,10 +40,42 @@ export class CommunityController {
     );
   }
 
+  @Public()
   @Get('posts/:id')
   @ApiOperation({ summary: '动态详情' })
   async getPostById(@Param('id') id: string, @Request() req) {
     return this.communityService.getPostById(id, req.user?.id);
+  }
+
+  @Public()
+  @Get('posts/:id/comments')
+  @ApiOperation({ summary: '评论列表' })
+  async getComments(
+    @Param('id') id: string,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    return this.communityService.getComments(
+      id,
+      parseInt(page || '1', 10),
+      parseInt(limit || '20', 10),
+    );
+  }
+
+  // ---- 需要认证的写接口 ----
+  @Post('posts')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: '发布动态' })
+  async createPost(@Request() req, @Body() dto: {
+    content: string;
+    images?: string[];
+    taggedSpecies?: string[];
+    taggedSpots?: string[];
+    videoUrl?: string;
+    contentType?: string;
+  }) {
+    return this.communityService.createPost(req.user.id, dto);
   }
 
   @Post('posts/:id/like')
@@ -71,20 +92,6 @@ export class CommunityController {
   @ApiOperation({ summary: '评论' })
   async addComment(@Request() req, @Param('id') id: string, @Body('content') content: string) {
     return this.communityService.addComment(req.user.id, id, content);
-  }
-
-  @Get('posts/:id/comments')
-  @ApiOperation({ summary: '评论列表' })
-  async getComments(
-    @Param('id') id: string,
-    @Query('page') page: string,
-    @Query('limit') limit: string,
-  ) {
-    return this.communityService.getComments(
-      id,
-      parseInt(page || '1', 10),
-      parseInt(limit || '20', 10),
-    );
   }
 
   @Post('posts/:id/share')
